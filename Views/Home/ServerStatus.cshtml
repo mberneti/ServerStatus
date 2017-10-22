@@ -1,0 +1,98 @@
+﻿<html>
+<head>
+  <title>server status</title>
+  <style type="text/css">
+    body {
+      background-color: #111111;
+      color: #eeeeee;
+      font-family: tahoma, arial, sans-serif;
+      padding-left: 100px;
+    }
+
+    h4 {
+      margin-bottom: 1px;
+    }
+  </style>
+  <script type="text/javascript" src="/js/smoothie.js"></script>
+  <script>
+
+    function initHost(hostId,seriesOptions) {
+
+      // Initialize an empty TimeSeries for each CPU.
+      var cpuDataSets = [new TimeSeries()];
+
+      var now = new Date().getTime();
+
+      // Build the timeline
+      var timeline = new SmoothieChart({millisPerPixel: 20, grid: { strokeStyle: '#555555', lineWidth: 1, millisPerLine: 1000, verticalSections: 4 } });
+
+      for (var i = 0; i < cpuDataSets.length; i++) {
+        timeline.addTimeSeries(cpuDataSets[i], seriesOptions[i]);
+      }
+
+      timeline.streamTo(document.getElementById(hostId), 1000);
+
+      return cpuDataSets;
+    }
+
+    function addRandomValueToDataSets(time, dataSets, index, value) {
+      dataSets[index].append(time, value);
+    }
+  </script>
+</head>
+
+<body data-gr-c-s-loaded="true">
+
+  <h1>Server Status</h1>
+
+  <h4>RAM usage</h4>
+  <canvas id="ram-status" width="800px" height="200px"></canvas>
+
+  <h4>CPU usage</h4>
+  <canvas id="cpu-status" width="800px" height="200px"></canvas>
+
+   <script type="text/javascript" src="/js/signalr-client-1.0.0-alpha1-final.min.js"></script>
+   <script type="text/javascript">
+   
+    var ramSeriesOptions = [
+      { strokeStyle: 'rgba(0, 255, 0, 1)', fillStyle: 'rgba(0, 255, 0, 0.1)', lineWidth: 3 }
+    ];
+    
+    var cpuSeriesOptions = [
+      { strokeStyle: 'rgba(0, 255, 0, 1)', fillStyle: 'rgba(255, 0, 0, 0.1)', lineWidth: 3 }
+    ];
+
+    var ramSets;
+    var cpuSets;
+
+    function init() {
+
+      cpuSets = initHost('cpu-status',ramSeriesOptions);
+      ramSets = initHost('ram-status',cpuSeriesOptions);
+
+    }
+
+       (function() {
+            var connection = new signalR.HubConnection('/serverStatus');
+            connection.on('broadcastStatus', function (status) {
+                console.log(status);
+
+                addRandomValueToDataSets(new Date().getTime(), cpuSets, 0, status.cpu);
+                addRandomValueToDataSets(new Date().getTime(), ramSets, 0, status.ram);
+
+            });
+
+            connection.start().then(function () {
+                console.log('connected.');
+
+                init();
+
+                setInterval(function(){connection.invoke('timerCallback')},1000);     
+
+            });
+        })();
+   </script>
+
+</body>
+
+</html>

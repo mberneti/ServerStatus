@@ -244,22 +244,5 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
-/BCore/wwwroot/Uploads/Images/*
-/BCore/wwwroot/Uploads/*
-!/BCore/wwwroot/Uploads/404.png
-/BCore/wwwroot/Content/Admin/bower_components
-/BCore/wwwroot/node_modules
-/AMBCoreTCLI/App_Data/*
 
-# .vscode
-
-*/*/Node/npm-debug*
-*/*/Node/*.xls
-*/*/Node/*.json
-
-Docs/site/
-
-.vscode/launch.json
-BCore/wwwroot/Node/.vscode/settings.json
-.vscode/tasks.json
-BCore/App_Data/Theme/data.json
+.vscode
